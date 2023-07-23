@@ -1,11 +1,26 @@
 #include "global.h"
 
+s32 func_800C59B0_jp(s32);                          /* extern */
+s32 func_800C5A08_jp(s32);                          /* extern */
+
 
 #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C59B0_jp.s")
 
 #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5A08_jp.s")
 
-#pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5A60_jp.s")
+// #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5A60_jp.s")
+s32 func_800C5A60_jp(s32 arg0) {
+    s32 temp_v0;
+    s32 var_v1;
+
+    temp_v0 = func_800C59B0_jp(arg0);
+    var_v1 = temp_v0;
+    if (temp_v0 == -1) {
+        var_v1 = func_800C5A08_jp(arg0);
+    }
+    return var_v1;
+}
+
 
 #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5AA0_jp.s")
 
