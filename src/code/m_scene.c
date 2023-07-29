@@ -32,6 +32,7 @@
 //   goto_emu_game 
 //   return_emu_game 
 
+//todo: maybe _MAX is better than _COUNT?
 #define OBJECT_BANK_COUNT 73
 
 typedef struct {
@@ -42,7 +43,7 @@ typedef struct {
     /* 0x010 */ size_t size;
     /* 0x014 */ char pad[0x3C];
     /* 0x050 */ s16 unk50;
-    /* 0x052 */ char pad2[0x1];
+    /* 0x052 */ u8 unk52;
     /* 0x053 */ u8 unk53;
 } ObjectBank; // size = 0x54
 
@@ -55,45 +56,38 @@ typedef struct {
     /* 0x1804 */ u32 unk1804;
     /* 0x1808 */ char pad[0x10];
     /* 0x1818 */ s32 unk1818;
+    /* 0x180C */ UNK_TYPE unk181C;
 } ObjectExchange; // size = 
 
 typedef struct {
     char unk0;
 } DoorInfo;
 
-#pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C59B0_jp.s")
-// s32 func_800C59B0_jp(ObjectExchange *objectExchange)
-// {
-//     ObjectBank *bank;
-//     s32 ret;
-//     s32 bankIndex;
-//     s32 new_var;
-//     int new_var2;
-//     ret = -1;
-//     new_var = OBJECT_BANK_COUNT;
-//     new_var2 = objectExchange->unk17FC;
-//     if (1)
-//     {
-//         bankIndex = new_var2;
-//         bank = &objectExchange->bank[bankIndex];
-//         for (; bankIndex < new_var;)
-//         {
-//             if (bank->id == 0)
-//             {
-//                 ret = bankIndex;
-//                 break;
-//             }
-//             bankIndex++;
-//             bank++;
-//         }
-//     }
-//   return ret;
-// }
+// #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C59B0_jp.s")
+s32 func_800C59B0_jp(ObjectExchange *objectExchange)
+{
+    ObjectBank *bank = &objectExchange->bank[objectExchange->unk17FC];
+    s32 ret = -1;
+    s32 bankIndex = objectExchange->unk17FC;
+    
+    if (bankIndex < OBJECT_BANK_COUNT)
+    {
+        do {
+            if (bank->id == 0)
+            {
+                ret = bankIndex;
+                break;
+            }
+            bank++;
+            bankIndex++;
+        } while (bankIndex != OBJECT_BANK_COUNT);
+    }
+  return ret;
+}
 
 #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5A08_jp.s")
 
 
-s32 func_800C59B0_jp(s32);                          /* extern */
 s32 func_800C5A08_jp(s32);                          /* extern */
 
 // #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5A60_jp.s")
@@ -176,12 +170,79 @@ void func_800C5C30_jp(s32 arg0)
     func_800B1A60_jp(arg0);
 }
 
+// #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5CC4_jp.s")
+u32 func_800C5CC4_jp(ObjectExchange* objectExchange, s16 id, s32 size) {
+    ObjectBank* objectBank = &objectExchange->bank[objectExchange->numberOfBanks];
+    u32 var_a3 = 0;
+    
+    if (objectExchange->numberOfBanks < OBJECT_BANK_COUNT) {
+        var_a3 = (objectExchange->unk1800 + size + 0xF) & ~0xF;
+        if (var_a3 >= objectExchange->unk1804) {
+            var_a3 = 0;
+        } else {
+            objectBank->id = id;
+            objectBank->unk4 = objectExchange->unk1800;
+            objectBank->segment = objectExchange->unk1800;
+            objectBank->vrom = 0;
+            objectBank->size = size;
+            objectBank->unk50 = 0;
+            objectBank->unk53 = 3;
+            objectExchange->unk1800 = var_a3;
+            objectExchange->numberOfBanks++;
+        }
+    }
+    return var_a3;
+}
 
-#pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5CC4_jp.s")
 
+// need to figure out common_data first
 #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5D68_jp.s")
+// s32 func_800C5D68_jp(ObjectExchange* objectExchange) {
+//     s32 temp_a2;
+//     s32 temp_v0;
+//     s32 var_a3;
+//     s32 var_v1;
+//     ObjectBank* var_a1;
 
-#pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5E10_jp.s")
+//     temp_v0 = objectExchange->unk181C;
+//     var_v1 = temp_v0;
+//     if (common_data.unk10001 == 0) {
+//         temp_a2 = objectExchange->unk17FC;
+//         var_a1 = &objectExchange->bank[temp_a2];
+//         var_v1 = (s32) (temp_v0 + 1) % 2;
+//         var_a3 = temp_a2;
+//         if (temp_a2 < 0x49) {
+// loop_3:
+//             var_a3 += 1;
+//             if ((var_a1->id != 0) && (var_v1 == var_a1->unk52) && ((var_a1->unk50 != 0) || (var_a1->unk53 != 0))) {
+//                 var_v1 = temp_v0;
+//             } else {
+//                 var_a1++;
+//                 if (var_a3 != OBJECT_BANK_COUNT) {
+//                     goto loop_3;
+//                 }
+//             }
+//         }
+//     }
+//     return var_v1;
+// }
+
+// #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5E10_jp.s")
+void func_800C5E10_jp(ObjectExchange *objectExchange) {
+    s32 temp_s3 = objectExchange->unk181C;
+    s32 var_s1 = objectExchange->unk17FC;
+    ObjectBank* objectBank = &objectExchange->bank[objectExchange->unk17FC];
+    
+    if (var_s1 < OBJECT_BANK_COUNT) {
+        do {
+            if ((objectBank->id != 0) && (temp_s3 == objectBank->unk52)) {
+                func_800C5B5C_jp(objectBank);
+                objectBank++;
+            }
+            var_s1++;
+        } while (var_s1 != OBJECT_BANK_COUNT);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5EA0_jp.s")
 
