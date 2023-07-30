@@ -1,5 +1,8 @@
 #include "global.h"
 #include "m_scene.h"
+//todo remove this
+#include "m_common_data.h"
+extern CommonData common_data;
 
 //   mSc_set_bank_status_after
 //   mSc_clear_bank_status
@@ -194,8 +197,6 @@ u32 func_800C5CC4_jp(ObjectExchange* objectExchange, s16 id, s32 size) {
     return var_a3;
 }
 
-
-// need to figure out common_data first
 #pragma GLOBAL_ASM("asm/jp/nonmatchings/code/m_scene/func_800C5D68_jp.s")
 // s32 func_800C5D68_jp(ObjectExchange* objectExchange) {
 //     s32 temp_a2;
